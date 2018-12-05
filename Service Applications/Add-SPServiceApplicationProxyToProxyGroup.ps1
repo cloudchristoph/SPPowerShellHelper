@@ -51,8 +51,7 @@ Add-PSSnapin Microsoft.SharePoint.PowerShell -ErrorAction SilentlyContinue
 #
 ##############################
 
-if($UseDefaultProxyGroup)
-{
+if ($UseDefaultProxyGroup) {
     $ProxyGroupName = "[default]"
 }
 
@@ -60,12 +59,10 @@ Write-Verbose "Getting Proxy Group"
 $proxyGroup = Get-SPServiceApplicationProxyGroup | Where-Object FriendlyName -eq $ProxyGroupName
 Write-Verbose "Getting Proxy"
 $proxy = Get-SPServiceApplicationProxy | Where-Object Name -eq $ProxyName
-if($null -ne $proxyGroup -and $null -ne $proxy)
-{
+if ($null -ne $proxyGroup -and $null -ne $proxy) {
     $addedGroup = Add-SPServiceApplicationProxyGroupMember -Identity $proxyGroup -Member $proxy
     Write-Verbose "Proxy $ProxyName added to Proxy Group $ProxyGroupName."
 }
-else
-{
+else {
     Write-Error "Could not find Proxy Group $ProxyGroupName or Proxy $ProxyName."
 }
