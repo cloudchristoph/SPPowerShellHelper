@@ -38,39 +38,39 @@
 ##############################
 
 param(
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [ValidateNotNullOrEmpty()]
     [string]
     $Url,
 
-    [Parameter(Mandatory=$false)]
+    [Parameter(Mandatory = $false)]
     [string]
     $ContentDB = "",
 
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [ValidateNotNullOrEmpty()]
     [string]
     $Name,
 
-    [Parameter(Mandatory=$false)]
+    [Parameter(Mandatory = $false)]
     [string]
     $Description = "",
 
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [ValidateNotNullOrEmpty()]
     [string]
     $Template,
 
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [ValidateNotNullOrEmpty()]
     [string]
     $PrimaryLogin,
 
-    [Parameter(Mandatory=$false)]
+    [Parameter(Mandatory = $false)]
     [string]
     $SecondaryLogin,
 
-    [Parameter(Mandatory=$false)]
+    [Parameter(Mandatory = $false)]
     [string]
     $Language = 1033
 )
@@ -89,16 +89,14 @@ Add-PSSnapin Microsoft.SharePoint.PowerShell -ErrorAction SilentlyContinue
 #
 ##############################
 
-if([string]::IsNullOrEmpty($SecondaryLogin))
-{
+if ([string]::IsNullOrEmpty($SecondaryLogin)) {
     $SecondaryLogin = $PrimaryLogin
 }
 
-if([string]::IsNullOrEmpty($ContentDB))
-{
+if ([string]::IsNullOrEmpty($ContentDB)) {
     New-SPSite -Url $Url -Name $Name –Description $Description -Template $Template -OwnerAlias $PrimaryLogin -Language $Language -SecondaryOwnerAlias $SecondaryLogin
 }
-else{
+else {
     New-SPSite -Url $Url –ContentDatabase $ContentDB -Name $Name –Description $Description -Template $Template -OwnerAlias $PrimaryLogin -Language $Language -SecondaryOwnerAlias $SecondaryLogin
 }
 
@@ -107,14 +105,15 @@ if ($web -ne $null -and $web.AssociatedVisitorGroup -eq $null) {
     Write-Verbose 'The Visitor Group does not exist. It will be created...' -ForegroundColor DarkYellow
     $currentLogin = $web.CurrentUser.LoginName
 
-    if ($web.CurrentUser.IsSiteAdmin -eq $false){
-        Write-Host ('The user '+$currentLogin+' needs to be a SiteCollection administrator, to create the default groups.') -ForegroundColor Red
+    if ($web.CurrentUser.IsSiteAdmin -eq $false) {
+        Write-Host ('The user ' + $currentLogin + ' needs to be a SiteCollection administrator, to create the default groups.') -ForegroundColor Red
         return
     }
 
     $web.CreateDefaultAssociatedGroups($currentLogin, $currentLogin, [System.String].Empty)
     Write-Verbose 'The default Groups have been created.' -ForegroundColor Green
-} else {
+}
+else {
     Write-Verbose 'The Visitor Group already exists.' -ForegroundColor Green
 }
 $web.Dispose()

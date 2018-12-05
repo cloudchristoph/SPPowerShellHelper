@@ -30,27 +30,27 @@
 ##############################
 
 param(
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [ValidateNotNullOrEmpty()]
     [string]
     $WebUrl,
 
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [ValidateNotNullOrEmpty()]
     [string]
     $RecipientMail,
     
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [ValidateNotNullOrEmpty()]
     [string]
     $FromMail,
     
-    [Parameter(Mandatory=$false)]
+    [Parameter(Mandatory = $false)]
     [ValidateNotNullOrEmpty()]
     [string]
     $Subject = "Hello world",
     
-    [Parameter(Mandatory=$false)]
+    [Parameter(Mandatory = $false)]
     [ValidateNotNullOrEmpty()]
     [string]
     $Body = "Hello world."

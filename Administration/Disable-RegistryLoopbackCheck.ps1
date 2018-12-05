@@ -30,15 +30,15 @@
 ##############################
 
 param(
-    [Parameter(Mandatory=$false)]
+    [Parameter(Mandatory = $false)]
     [string[]]
     $BackConnectionHostNames,
 
-    [Parameter(Mandatory=$false)]
+    [Parameter(Mandatory = $false)]
     [switch]
     $DisableLoopbackCheck,
 
-    [Parameter(Mandatory=$false)]
+    [Parameter(Mandatory = $false)]
     [switch]
     $UpdateBackConnectionHostNames
 )
@@ -49,50 +49,42 @@ param(
 #
 ##############################
 
-if($BackConnectionHostNames -eq $null -and !$DisableLoopbackCheck)
-{
+if ($BackConnectionHostNames -eq $null -and !$DisableLoopbackCheck) {
     Write-Error "Please set appropriate parameters"
     return
 }
-elseif($BackConnectionHostNames -ne $null -and !$DisableLoopbackCheck)
-{
+elseif ($BackConnectionHostNames -ne $null -and !$DisableLoopbackCheck) {
     $BackConnectionHostNames | ForEach-Object {
-        if([string]::IsNullOrEmpty($_))
-        {
+        if ([string]::IsNullOrEmpty($_)) {
             Write-Error "There are empty entries in the back connection host names"
             return
         }
     }
 }
 
-if($BackConnectionHostNames -ne $null)
-{
+if ($BackConnectionHostNames -ne $null) {
     Write-Verbose "Searching for existing 'BackConnectionHostName' entry"
     $prop = Get-ItemProperty HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\MSV1_0 -Name "BackConnectionHostNames" -ErrorAction SilentlyContinue
     Write-Verbose "Setting 'BackConnectionHostName' in registry"
-    if($null -eq $prop)
-    {
+    if ($null -eq $prop) {
         Write-Verbose "No entry found. Creating new one."
         $prop = New-ItemProperty HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\MSV1_0 -Name "BackConnectionHostNames" -value $BackConnectionHostNames -PropertyType multistring
     }
-    else
-    {
+    else {
         Write-Verbose "Entry found."
-        if($UpdateBackConnectionHostNames)
-        {
+        if ($UpdateBackConnectionHostNames) {
             Write-Verbose "Updating entry"
             $prop = Set-ItemProperty HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\MSV1_0 -Name "BackConnectionHostNames" -Value @"
 $BackConnectionHostNames
 $($prop.BackConnectionHostNames)
 "@
         }
-        else
-        {
+        else {
             Write-Verbose "Setting entry - no update"
             $prop = Set-ItemProperty HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\MSV1_0 -Name "BackConnectionHostNames" -value $BackConnectionHostNames
         }
     }
-    $message  = 'You need to restart the computer.'
+    $message = 'You need to restart the computer.'
     $question = 'Do you want to restart?'
 
     $choices = New-Object Collections.ObjectModel.Collection[Management.Automation.Host.ChoiceDescription]
@@ -103,23 +95,21 @@ $($prop.BackConnectionHostNames)
     if ($decision -eq 0) {
         Write-Verbose "Restarting computer"
         Restart-Computer -Force
-    } else {
+    }
+    else {
         Write-Verbose "Restart still required"
     }
 }
 
-if($DisableLoopbackCheck)
-{
+if ($DisableLoopbackCheck) {
     Write-Verbose "Searching for existing 'DisableLoopbackCheck' entry"
     $prop = Get-ItemProperty HKLM:\System\CurrentControlSet\Control\Lsa -Name "DisableLoopbackCheck" -ErrorAction SilentlyContinue
     Write-Verbose "Setting 'DisableLoopbackCheck' in registry to 1"
-    if($null -eq $prop)
-    {
+    if ($null -eq $prop) {
         Write-Verbose "No entry found. Creating new one."
         $prop = New-ItemProperty HKLM:\System\CurrentControlSet\Control\Lsa -Name "DisableLoopbackCheck" -value "1" -PropertyType dword
     }
-    else
-    {
+    else {
         Write-Verbose "Entry found."
         $prop = Set-ItemProperty HKLM:\System\CurrentControlSet\Control\Lsa -Name "DisableLoopbackCheck" -value "1"
     }

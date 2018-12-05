@@ -35,26 +35,26 @@
 ##############################
 
 param(
-    [Parameter(Mandatory=$false)]
+    [Parameter(Mandatory = $false)]
     [string]
     $ManagedAccount,
     
-    [Parameter(Mandatory=$false)]
+    [Parameter(Mandatory = $false)]
     [ValidateNotNullOrEmpty()]
     [string]
     $AppPoolName = "AppPool_SubscriptionSettings",
 
-    [Parameter(Mandatory=$false)]
+    [Parameter(Mandatory = $false)]
     [ValidateNotNullOrEmpty()]
     [string]
     $ServiceAppName = "Subscription Settings Service Application",
 
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [ValidateNotNullOrEmpty()]
     [string]
     $DatabaseServer,
 
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [ValidateNotNullOrEmpty()]
     [string]
     $DatabaseName
@@ -77,15 +77,13 @@ Add-PSSnapin "Microsoft.SharePoint.PowerShell" -ErrorAction SilentlyContinue
 # Error handling
 
 $subscriptionServiceApp = Get-SPServiceApplication | where { $_.TypeName -like "Microsoft SharePoint Foundation Subscription Settings Service Application" }
-if($null -ne $subscriptionServiceApp)
-{
+if ($null -ne $subscriptionServiceApp) {
     Write-Error "Service Application of type Microsoft SharePoint Foundation Subscription Settings Service Application already exists!"
     exit
 }
 
 $subscriptionServiceApp = Get-SPServiceApplication -Name $ServiceAppName
-if($null -ne $subscriptionServiceApp)
-{
+if ($null -ne $subscriptionServiceApp) {
     Write-Error "Service Application with name $ServiceAppName already exists!"
     exit
 }
@@ -93,13 +91,13 @@ if($null -ne $subscriptionServiceApp)
 # Start service instance
 
 Write-Verbose "Starting service instance"
-$si = Get-SPServiceInstance | where {$_.TypeName -like  "Microsoft SharePoint Foundation Subscription Settings Service"}
+$si = Get-SPServiceInstance | where {$_.TypeName -like "Microsoft SharePoint Foundation Subscription Settings Service"}
 $si | Start-SPServiceInstance
 
-do{
+do {
     Write-Host "Waiting for provisioning. Current state: $($si.Status)"
     Start-Sleep -Seconds 5
-}while($si.Status -ne "Online")
+}while ($si.Status -ne "Online")
 
 Write-Verbose "Service instance started"
 
@@ -107,18 +105,15 @@ Write-Verbose "Service instance started"
 
 Write-Verbose "Getting existing Application  Pool"
 $appPool = Get-SPServiceApplicationPool -Identity $AppPoolName
-if($null -eq $appPool)
-{
+if ($null -eq $appPool) {
     Write-Verbose "No Application Pool found. Creating a new one"
-    if([string]::IsNullOrEmpty($ManagedAccount))
-    {
+    if ([string]::IsNullOrEmpty($ManagedAccount)) {
         Write-Error "You need to specify a managed account to create a new Application Pool"
         exit
     }
     
     $account = Get-SPManagedAccount -Identity $ManagedAccount -ErrorAction SilentlyContinue
-    if($null -eq $account)
-    {
+    if ($null -eq $account) {
         Write-Error "No managed account '$ManagedAccount' found"
         exit
     }
@@ -135,7 +130,7 @@ $subscriptionServiceApp = New-SPSubscriptionSettingsServiceApplication -Applicat
 Write-Verbose "Service Application created"
 
 Write-Verbose "Creating Service Application Proxy"
-$subscriptionProxyServiceApp =New-SPSubscriptionSettingsServiceApplicationProxy -ServiceApplication $subscriptionServiceApp
+$subscriptionProxyServiceApp = New-SPSubscriptionSettingsServiceApplicationProxy -ServiceApplication $subscriptionServiceApp
 Write-Verbose "Service Application Proxy created"
 
 Write-Host "Subscription Settings Service Application created"

@@ -35,26 +35,26 @@
 ##############################
 
 param(
-    [Parameter(Mandatory=$false)]
+    [Parameter(Mandatory = $false)]
     [string]
     $ManagedAccount,
     
-    [Parameter(Mandatory=$false)]
+    [Parameter(Mandatory = $false)]
     [ValidateNotNullOrEmpty()]
     [string]
     $AppPoolName = "AppPool_AppManagement",
 
-    [Parameter(Mandatory=$false)]
+    [Parameter(Mandatory = $false)]
     [ValidateNotNullOrEmpty()]
     [string]
     $ServiceAppName = "App Management Service Application",
 
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [ValidateNotNullOrEmpty()]
     [string]
     $DatabaseServer,
 
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [ValidateNotNullOrEmpty()]
     [string]
     $DatabaseName
@@ -76,16 +76,14 @@ Add-PSSnapin "Microsoft.SharePoint.PowerShell" -ErrorAction SilentlyContinue
 
 # Error handling
 
-$appServiceApp = Get-SPServiceApplication | where {$_.TypeName -like  "App Management Service"}
-if($null -ne $appServiceApp)
-{
+$appServiceApp = Get-SPServiceApplication | where {$_.TypeName -like "App Management Service"}
+if ($null -ne $appServiceApp) {
     Write-Error "Service Application of type App Management Service Application already exists!"
     exit
 }
 
 $appServiceApp = Get-SPServiceApplication -Name $ServiceAppName
-if($null -ne $appServiceApp)
-{
+if ($null -ne $appServiceApp) {
     Write-Error "Service Application with name $ServiceAppName already exists!"
     exit
 }
@@ -93,13 +91,13 @@ if($null -ne $appServiceApp)
 # Start service instance
 
 Write-Verbose "Starting service instance"
-$si = Get-SPServiceInstance | where {$_.TypeName -like  "App Management Service"}
+$si = Get-SPServiceInstance | where {$_.TypeName -like "App Management Service"}
 $si | Start-SPServiceInstance
 
-do{
+do {
     Write-Host "Waiting for provisioning. Current state: $($si.Status)"
     Start-Sleep -Seconds 5
-}while($si.Status -ne "Online")
+}while ($si.Status -ne "Online")
 
 Write-Verbose "Service instance started"
 
@@ -107,18 +105,15 @@ Write-Verbose "Service instance started"
 
 Write-Verbose "Getting existing Application  Pool"
 $appPool = Get-SPServiceApplicationPool -Identity $AppPoolName
-if($null -eq $appPool)
-{
+if ($null -eq $appPool) {
     Write-Verbose "No Application Pool found. Creating a new one"
-    if([string]::IsNullOrEmpty($ManagedAccount))
-    {
+    if ([string]::IsNullOrEmpty($ManagedAccount)) {
         Write-Error "You need to specify a managed account to create a new Application Pool"
         exit
     }
     
     $account = Get-SPManagedAccount -Identity $ManagedAccount -ErrorAction SilentlyContinue
-    if($null -eq $account)
-    {
+    if ($null -eq $account) {
         Write-Error "No managed account '$ManagedAccount' found"
         exit
     }
@@ -135,7 +130,7 @@ $appServiceApp = New-SPAppManagementServiceApplication -ApplicationPool $appPool
 Write-Verbose "Service Application created"
 
 Write-Verbose "Creating Service Application Proxy"
-$appProxyServiceApp =New-SPAppManagementServiceApplicationProxy -ServiceApplication $appServiceApp -Name $($ServiceAppName + " Proxy")
+$appProxyServiceApp = New-SPAppManagementServiceApplicationProxy -ServiceApplication $appServiceApp -Name $($ServiceAppName + " Proxy")
 Write-Verbose "Service Application Proxy created"
 
 Write-Host "Apps Management Service Application created"
