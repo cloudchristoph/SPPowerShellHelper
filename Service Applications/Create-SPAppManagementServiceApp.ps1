@@ -76,7 +76,7 @@ Add-PSSnapin "Microsoft.SharePoint.PowerShell" -ErrorAction SilentlyContinue
 
 # Error handling
 
-$appServiceApp = Get-SPServiceApplication | where {$_.TypeName -like "App Management Service"}
+$appServiceApp = Get-SPServiceApplication | where {$_.TypeName -like "App Management Service"} -ErrorAction SilentlyContinue
 if ($null -ne $appServiceApp) {
     Write-Error "Service Application of type App Management Service Application already exists!"
     exit
@@ -104,7 +104,7 @@ Write-Verbose "Service instance started"
 # Get or create app pool
 
 Write-Verbose "Getting existing Application  Pool"
-$appPool = Get-SPServiceApplicationPool -Identity $AppPoolName
+$appPool = Get-SPServiceApplicationPool -Identity $AppPoolName -ErrorAction SilentlyContinue
 if ($null -eq $appPool) {
     Write-Verbose "No Application Pool found. Creating a new one"
     if ([string]::IsNullOrEmpty($ManagedAccount)) {
