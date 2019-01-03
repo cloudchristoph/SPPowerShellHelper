@@ -49,20 +49,20 @@ param(
 #
 ##############################
 
-if ($BackConnectionHostNames -eq $null -and !$DisableLoopbackCheck) {
+if ($null -eq $BackConnectionHostNames -and !$DisableLoopbackCheck) {
     Write-Error "Please set appropriate parameters"
-    return
+    exit
 }
-elseif ($BackConnectionHostNames -ne $null -and !$DisableLoopbackCheck) {
+elseif ($null -ne $BackConnectionHostNames -and !$DisableLoopbackCheck) {
     $BackConnectionHostNames | ForEach-Object {
         if ([string]::IsNullOrEmpty($_)) {
             Write-Error "There are empty entries in the back connection host names"
-            return
+            exit
         }
     }
 }
 
-if ($BackConnectionHostNames -ne $null) {
+if ($null -ne $BackConnectionHostNames) {
     Write-Verbose "Searching for existing 'BackConnectionHostName' entry"
     $prop = Get-ItemProperty HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\MSV1_0 -Name "BackConnectionHostNames" -ErrorAction SilentlyContinue
     Write-Verbose "Setting 'BackConnectionHostName' in registry"
