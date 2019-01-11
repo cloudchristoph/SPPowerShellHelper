@@ -95,6 +95,7 @@ $si = Get-SPServiceInstance | where {$_.TypeName -like "App Management Service"}
 $si | Start-SPServiceInstance
 
 do {
+    $si = Get-SPServiceInstance | where {$_.TypeName -like "App Management Service"}
     Write-Host "Waiting for provisioning. Current state: $($si.Status)"
     Start-Sleep -Seconds 5
 }while ($si.Status -ne "Online")
