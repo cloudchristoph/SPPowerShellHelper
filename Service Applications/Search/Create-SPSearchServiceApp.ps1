@@ -12,11 +12,11 @@
     File Name  : Create-SPSearchServiceApp.ps1
     Author     : Henrik Krumbholz
 .EXAMPLE
-    Create-SPSearchServiceApp.ps1 -DatabaseServer SP16_SQL -DatabaseName "SP16_ServiceApp_Search"
-    Create-SPSearchServiceApp.ps1 -DatabaseServer SP16_SQL -DatabaseName "SP16_ServiceApp_Search" -ServiceAppName "Search Service"
-    Create-SPSearchServiceApp.ps1 -DatabaseServer SP16_SQL -DatabaseName "SP16_ServiceApp_Search" -ServiceAppName "Search Service" -AppPoolName "Existing AppPool Shared"
-    Create-SPSearchServiceApp.ps1 -DatabaseServer SP16_SQL -DatabaseName "SP16_ServiceApp_Search" -ServiceAppName "Search Service" -AppPoolName "New AppPool App" -ManagedAccount "DEV\SP_Services"
-    Create-SPSearchServiceApp.ps1 -DatabaseServer SP16_SQL -DatabaseName "SP16_ServiceApp_Search" -ServiceAppName "Search Service" -AppPoolName "New AppPool App" -ManagedAccount "DEV\SP_Services" -ContentAccessAccount $(Get-Vredential)
+    Create-SPSearchServiceApp.ps1 -DatabaseServer SP16_SQL -DatabaseName "SP16_ServiceApp_Search" -ContentAccessAccount $(Get-Credential)
+    Create-SPSearchServiceApp.ps1 -DatabaseServer SP16_SQL -DatabaseName "SP16_ServiceApp_Search" -ContentAccessAccount $(Get-Credential) -ServiceAppName "Search Service"
+    Create-SPSearchServiceApp.ps1 -DatabaseServer SP16_SQL -DatabaseName "SP16_ServiceApp_Search" -ContentAccessAccount $(Get-Credential) -ServiceAppName "Search Service" -AppPoolName "Existing AppPool Shared"
+    Create-SPSearchServiceApp.ps1 -DatabaseServer SP16_SQL -DatabaseName "SP16_ServiceApp_Search" -ContentAccessAccount $(Get-Credential) -ServiceAppName "Search Service" -AppPoolName "New AppPool App" -ManagedAccount "DEV\SP_Services"
+    Create-SPSearchServiceApp.ps1 -DatabaseServer SP16_SQL -DatabaseName "SP16_ServiceApp_Search" -ContentAccessAccount $(Get-Credential) -ServiceAppName "Search Service" -AppPoolName "New AppPool App" -ManagedAccount "DEV\SP_Services"
 .PARAMETER ManagedAccount
     The managed account to be used for a new application pool. If you want to create a new application pool you have to specify a managed account.
     Needs to be in the following format: DOMAIN\USER
