@@ -1,27 +1,27 @@
-﻿<#
+<#
 .SYNOPSIS
-    Creates a new service application of type: App Management Service.
+    Creates a new service application of type: Business Data Connectivity Service.
 .DESCRIPTION
-    Creates a new service application of type: App Management Service.
+    Creates a new service application of type: Business Data Connectivity Service.
     Creates a new service application proxy.
     Creates a new application pool if there is no existing one.
 .NOTES
-    File Name  : Create-SPAppManagementServiceApp.ps1
+    File Name  : Create-SPBdcServiceApp.ps1
     Author     : Henrik Krumbholz
 .EXAMPLE
-    Create-SPAppManagementServiceApp.ps1 -DatabaseServer SP16_SQL -DatabaseName "SP16_ServiceApp_AppManagementService"
-    Create-SPAppManagementServiceApp.ps1 -DatabaseServer SP16_SQL -DatabaseName "SP16_ServiceApp_AppManagementService" -ServiceAppName "App Service"
-    Create-SPAppManagementServiceApp.ps1 -DatabaseServer SP16_SQL -DatabaseName "SP16_ServiceApp_AppManagementService" -ServiceAppName "App Service" -AppPoolName "Existing AppPool Shared"
-    Create-SPAppManagementServiceApp.ps1 -DatabaseServer SP16_SQL -DatabaseName "SP16_ServiceApp_AppManagementService" -ServiceAppName "App Service" -AppPoolName "New AppPool App" -ManagedAccount "DEV\SP_Services"
+    Create-SPBdcServiceApp.ps1 -DatabaseServer SP16_SQL -DatabaseName "SP16_ServiceApp_BdcService"
+    Create-SPBdcServiceApp.ps1 -DatabaseServer SP16_SQL -DatabaseName "SP16_ServiceApp_BdcService" -ServiceAppName "BDC Service"
+    Create-SPBdcServiceApp.ps1 -DatabaseServer SP16_SQL -DatabaseName "SP16_ServiceApp_BdcService" -ServiceAppName "BDC Service" -AppPoolName "Existing AppPool Shared"
+    Create-SPBdcServiceApp.ps1 -DatabaseServer SP16_SQL -DatabaseName "SP16_ServiceApp_BdcService" -ServiceAppName "BDC Service" -AppPoolName "New AppPool App" -ManagedAccount "DEV\SP_Services"
 .PARAMETER ManagedAccount
     The managed account to be used for a new application pool. If you want to create a new application pool you have to specify a managed account.
     Needs to be in the following format: DOMAIN\USER
 .PARAMETER AppPoolName
     The name of the existing or new application pool. If you want to create a new application pool you have to specify a managed account.
-    Default is "AppPool_AppManagement".
+    Default is "AppPool_BDC".
 .PARAMETER ServiceAppName
     The name of the new service application.
-    Default is "App Management Service Application".
+    Default is "Business Data Connectivity Service Application".
 .PARAMETER DatabaseServer
     The name of the database server. Normally the SQL Alias.
 .PARAMETER DatabaseName
@@ -42,12 +42,12 @@ param(
     [Parameter(Mandatory = $false)]
     [ValidateNotNullOrEmpty()]
     [string]
-    $AppPoolName = "AppPool_AppManagement",
+    $AppPoolName = "AppPool_BDC",
 
     [Parameter(Mandatory = $false)]
     [ValidateNotNullOrEmpty()]
     [string]
-    $ServiceAppName = "App Management Service Application",
+    $ServiceAppName = "Business Data Connectivity Service Application",
 
     [Parameter(Mandatory = $true)]
     [ValidateNotNullOrEmpty()]
@@ -66,24 +66,24 @@ param(
 #
 ##############################
 
-Add-PSSnapin "Microsoft.SharePoint.PowerShell" -ErrorAction SilentlyContinue
+Add-PSSnapin Microsoft.SharePoint.PowerShell -ErrorAction SilentlyContinue
 
 ##############################
 #
 # Main
 #
 ##############################
-
+ 
 # Error handling
 
-$appServiceApp = Get-SPServiceApplication | where {$_.TypeName -like "App Management Service"} -ErrorAction SilentlyContinue
-if ($null -ne $appServiceApp) {
-    Write-Error "Service Application of type App Management Service Application already exists!"
+$bdcServiceApp = Get-SPServiceApplication | where {$_.TypeName -like "Business Data Connectivity Service Application"} -ErrorAction SilentlyContinue
+if ($null -ne $bdcServiceApp) {
+    Write-Error "Service Application of type Business Data Connectivity Service Application already exists!"
     exit
 }
 
-$appServiceApp = Get-SPServiceApplication -Name $ServiceAppName -ErrorAction SilentlyContinue
-if ($null -ne $appServiceApp) {
+$bdcServiceApp = Get-SPServiceApplication -Name $ServiceAppName -ErrorAction SilentlyContinue
+if ($null -ne $bdcServiceApp) {
     Write-Error "Service Application with name $ServiceAppName already exists!"
     exit
 }
@@ -91,11 +91,11 @@ if ($null -ne $appServiceApp) {
 # Start service instance
 
 Write-Verbose "Starting service instance"
-$si = Get-SPServiceInstance | where {$_.TypeName -like "App Management Service"}
+$si = Get-SPServiceInstance | where {$_.TypeName -like "Business Data Connectivity Service"}
 $si | Start-SPServiceInstance
 
 do {
-    $si = Get-SPServiceInstance | where {$_.TypeName -like "App Management Service"}
+    $si = Get-SPServiceInstance | where {$_.TypeName -like "Business Data Connectivity Service"}
     Write-Host "Waiting for provisioning. Current state: $($si.Status)"
     Start-Sleep -Seconds 5
 }while ($si.Status -ne "Online")
@@ -127,11 +127,12 @@ if ($null -eq $appPool) {
 # Create service app
 
 Write-Verbose "Creating Service Application"
-$appServiceApp = New-SPAppManagementServiceApplication -ApplicationPool $appPool -Name $ServiceAppName -DatabaseName $DatabaseName -DatabaseServer $DatabaseServer
+$bdcServiceApp = New-SPBusinessDataCatalogServiceApplication -ApplicationPool $appPool -Name $ServiceAppName -DatabaseName $DatabaseName -DatabaseServer $DatabaseServer
 Write-Verbose "Service Application created"
 
 Write-Verbose "Creating Service Application Proxy"
-$appProxyServiceApp = New-SPAppManagementServiceApplicationProxy -ServiceApplication $appServiceApp -Name $($ServiceAppName + " Proxy")
-Write-Verbose "Service Application Proxy created"
+Write-Warning "The 'New-SPBusinessDataCatalogServiceApplication' should create a Proxy itself."
+#$bdcProxyServiceApp = New-SPBusinessDataCatalogServiceApplicationProxy -ServiceApplication $bdcServiceApp -Name $($ServiceAppName + " Proxy")
+#Write-Verbose "Service Application Proxy created"
 
-Write-Host "Apps Management Service Application created"
+Write-Host "Business Data Connectivity Application created"

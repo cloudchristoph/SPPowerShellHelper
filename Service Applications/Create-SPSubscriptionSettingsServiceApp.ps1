@@ -82,7 +82,7 @@ if ($null -ne $subscriptionServiceApp) {
     exit
 }
 
-$subscriptionServiceApp = Get-SPServiceApplication -Name $ServiceAppName
+$subscriptionServiceApp = Get-SPServiceApplication -Name $ServiceAppName -ErrorAction SilentlyContinue
 if ($null -ne $subscriptionServiceApp) {
     Write-Error "Service Application with name $ServiceAppName already exists!"
     exit

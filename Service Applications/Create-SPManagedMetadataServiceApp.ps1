@@ -82,7 +82,7 @@ if ($null -ne $managedMetadataServiceApp) {
     exit
 }
 
-$managedMetadataServiceApp = Get-SPServiceApplication -Name $ServiceAppName
+$managedMetadataServiceApp = Get-SPServiceApplication -Name $ServiceAppName -ErrorAction SilentlyContinue
 if ($null -ne $managedMetadataServiceApp) {
     Write-Error "Service Application with name $ServiceAppName already exists!"
     exit
