@@ -76,9 +76,9 @@ Add-PSSnapin "Microsoft.SharePoint.PowerShell" -ErrorAction SilentlyContinue
 
 # Error handling
 
-$managedMetadataServiceApp = Get-SPServiceApplication | where { $_.TypeName -like "Managed Metadata Service Application" } -ErrorAction SilentlyContinue
+$managedMetadataServiceApp = Get-SPServiceApplication | where { $_.TypeName -like "Managed Metadata Service" } -ErrorAction SilentlyContinue
 if ($null -ne $managedMetadataServiceApp) {
-    Write-Error "Service Application of type Managed Metadata Service Application already exists!"
+    Write-Error "Service Application of type Managed Metadata Service already exists!"
     exit
 }
 
