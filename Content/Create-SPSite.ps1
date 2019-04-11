@@ -12,7 +12,7 @@
     Create-SPSite.ps1 -Url "http://sp.dev.local/newSite" -Name "NewSite" -Template "STS#1" -PrimaryLogin "dev\admin" -ContentDB "TargetContentDB"
     Create-SPSite.ps1 -Url "http://sp.dev.local/newSite" -Name "NewSite" -Template "STS#1" -PrimaryLogin "dev\admin" -ContentDB "TargetContentDB" -Language 1031
     Create-SPSite.ps1 -Url "http://sp.dev.local/newSite" -Name "NewSite" -Template "STS#1" -PrimaryLogin "dev\admin" -ContentDB "TargetContentDB" -Language 1031 -SecondaryLogin "dev\secondAdmin"
-    Create-SPSite.ps1 -Url "http://sp.dev.local/newSite" -Name "NewSite" -Template "STS#1" -PrimaryLogin "dev\admin" -ContentDB "TargetContentDB" -Language 1031 -SecondaryLogin "dev\secondAdmin" Description "Site Description"
+    Create-SPSite.ps1 -Url "http://sp.dev.local/newSite" -Name "NewSite" -Template "STS#1" -PrimaryLogin "dev\admin" -ContentDB "TargetContentDB" -Language 1031 -SecondaryLogin "dev\secondAdmin" -Description "Site Description"
 .PARAMETER Url
     The url of the new site to be created. Needs to be full qualified.
 .PARAMETER ContentDB
@@ -45,7 +45,7 @@ param(
 
     [Parameter(Mandatory = $false)]
     [string]
-    $ContentDB = "",
+    $ContentDB,
 
     [Parameter(Mandatory = $true)]
     [ValidateNotNullOrEmpty()]
@@ -71,6 +71,7 @@ param(
     $SecondaryLogin,
 
     [Parameter(Mandatory = $false)]
+    [ValidateNotNullOrEmpty()]
     [string]
     $Language = 1033
 )
@@ -89,31 +90,34 @@ Add-PSSnapin Microsoft.SharePoint.PowerShell -ErrorAction SilentlyContinue
 #
 ##############################
 
+Write-Verbose "Creating root site collection"
+
 if ([string]::IsNullOrEmpty($SecondaryLogin)) {
     $SecondaryLogin = $PrimaryLogin
 }
 
 if ([string]::IsNullOrEmpty($ContentDB)) {
-    New-SPSite -Url $Url -Name $Name –Description $Description -Template $Template -OwnerAlias $PrimaryLogin -Language $Language -SecondaryOwnerAlias $SecondaryLogin
+    New-SPSite -Url $Url -Name $Name –Description $Description -Template $SiteCollectionTemplate -OwnerAlias $PrimaryLogin -Language $Language -SecondaryOwnerAlias $SecondaryLogin | Out-Null
 }
 else {
-    New-SPSite -Url $Url –ContentDatabase $ContentDB -Name $Name –Description $Description -Template $Template -OwnerAlias $PrimaryLogin -Language $Language -SecondaryOwnerAlias $SecondaryLogin
+    New-SPSite -Url $Url –ContentDatabase $ContentDB -Name $Name –Description $Description -Template $SiteCollectionTemplate -OwnerAlias $PrimaryLogin -Language $Language -SecondaryOwnerAlias $SecondaryLogin | Out-Null
 }
 
 $web = Get-SPWeb $Url
 if ($web -ne $null -and $web.AssociatedVisitorGroup -eq $null) {
-    Write-Verbose 'The Visitor Group does not exist. It will be created...' -ForegroundColor DarkYellow
-    $currentLogin = $web.CurrentUser.LoginName
-
-    if ($web.CurrentUser.IsSiteAdmin -eq $false) {
-        Write-Host ('The user ' + $currentLogin + ' needs to be a SiteCollection administrator, to create the default groups.') -ForegroundColor Red
-        return
-    }
-
-    $web.CreateDefaultAssociatedGroups($currentLogin, $currentLogin, [System.String].Empty)
-    Write-Verbose 'The default Groups have been created.' -ForegroundColor Green
+    Write-Verbose 'The Visitor Group does not exist. It will be created...'
+    [Microsoft.SharePoint.SPSecurity]::RunWithElevatedPrivileges(
+        {
+            $tmpWeb = Get-SPWeb $Url
+            $tmpWeb.CreateDefaultAssociatedGroups($PrimaryLogin, $SecondaryLogin, [System.String].Empty)
+            $tmpWeb.Dispose()
+        }
+    )
+    Write-Verbose 'The default Groups have been created.'
 }
 else {
-    Write-Verbose 'The Visitor Group already exists.' -ForegroundColor Green
+    Write-Verbose 'The Visitor Group already exists.'
 }
 $web.Dispose()
+
+Write-Verbose "Root site collection created"
