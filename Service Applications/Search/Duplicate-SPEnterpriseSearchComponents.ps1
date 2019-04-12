@@ -124,7 +124,6 @@ do {
 until ($activeState -eq $true)
 
 # Delete old topology
-$inactiveSearchTopologies = Get-SPEnterpriseSearchTopology -SearchApplication $ssa | ? { $_.State -eq "Inactive" }
-foreach ($topology in $inactiveSearchTopologies) {
-    Remove-SPEnterpriseSearchTopology -SearchApplication $ssa -Identity $topology.TopologyId.Guid -Confirm:$false
-}
+Write-Verbose "Deleting old topologies."
+Get-SPEnterpriseSearchTopology -SearchApplication $ssa | ? { $_.State -eq "Inactive" } | Remove-SPEnterpriseSearchTopology -SearchApplication $ssa -Confirm:$false
+Write-Verbose "Old topologies removed"
