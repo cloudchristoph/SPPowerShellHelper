@@ -149,7 +149,8 @@ Write-Verbose "Content access account set"
 #Clone topology
 
 Write-Verbose "Creating new topology"
-$clone = $searchServiceApp.ActiveTopology.Clone()
+$active = Get-SPEnterpriseSearchTopology -SearchApplication $searchServiceApp -Active
+$clone = New-SPEnterpriseSearchTopology -SearchApplication $searchServiceApp -Clone –SearchTopology $active
 
 #Create new topology
 
@@ -165,7 +166,7 @@ Write-Verbose "New topology created"
 #Activate new topology
 
 Write-Verbose "Activating new topology"
-$clone.Activate()
+Set-SPEnterpriseSearchTopology -Identity $clone
 Write-Verbose "New topology activated"
 
 # Delete old topology
