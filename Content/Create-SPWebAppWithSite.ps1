@@ -187,10 +187,10 @@ if ([string]::IsNullOrEmpty($SecondaryLogin)) {
 }
 
 if ([string]::IsNullOrEmpty($ContentDB)) {
-    New-SPSite -Url $Url -Name $Name –Description $Description -Template $SiteCollectionTemplate -OwnerAlias $PrimaryLogin -Language $Language -SecondaryOwnerAlias $SecondaryLogin | Out-Null
+    New-SPSite -Url $Url -Name $Name -Description $Description -Template $SiteCollectionTemplate -OwnerAlias $PrimaryLogin -Language $Language -SecondaryOwnerAlias $SecondaryLogin | Out-Null
 }
 else {
-    New-SPSite -Url $Url –ContentDatabase $ContentDB -Name $Name –Description $Description -Template $SiteCollectionTemplate -OwnerAlias $PrimaryLogin -Language $Language -SecondaryOwnerAlias $SecondaryLogin | Out-Null
+    New-SPSite -Url $Url -ContentDatabase $ContentDB -Name $Name -Description $Description -Template $SiteCollectionTemplate -OwnerAlias $PrimaryLogin -Language $Language -SecondaryOwnerAlias $SecondaryLogin | Out-Null
 }
 
 $web = Get-SPWeb $Url
